@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { PieChartOptions } from "./types";
+import type { PieChartOptions } from "./types";
 
 interface PieChartData {
   name: string;
@@ -33,7 +33,7 @@ export function createPieChart(data: PieChartData[], options: PieChartOptions = 
 
   // Generate the arcs
   const arc = d3.arc<d3.PieArcDatum<PieChartData>>()
-    .innerRadius(0)
+    .innerRadius(options.innerRadius ? radius * options.innerRadius : 0)
     .outerRadius(radius);
 
   // Add the arcs

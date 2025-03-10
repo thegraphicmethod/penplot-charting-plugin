@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BaseChartOptions } from "../types";
+import type { BaseChartOptions } from "../types";
 
 const props = defineProps<{
   defaultOptions: BaseChartOptions

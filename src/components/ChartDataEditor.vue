@@ -39,7 +39,7 @@ const updateData = () => {
 
 <template>
   <div class="chart-editor">
-    <div class="plugin__field">
+    <div class="plugin__field" >
       <label class="plugin__label">How many slices?</label>
       <input 
         type="number" 
@@ -63,7 +63,7 @@ const updateData = () => {
             <input 
               type="text"
               v-model="item.name"
-              class="plugin__input"
+              class=""
               @change="updateData"
             >
           </td>
@@ -71,7 +71,7 @@ const updateData = () => {
             <input 
               type="number"
               v-model="item.value"
-              class="plugin__input"
+              class=""
               @change="updateData"
             >
           </td>
@@ -85,7 +85,7 @@ const updateData = () => {
 .chart-editor {
   display: flex;
   flex-direction: column;
-  gap: var(--space-16);
+  gap: var(--spacing-16);
 }
 
 .plugin__table {
@@ -96,9 +96,10 @@ const updateData = () => {
 
 .plugin__table th,
 .plugin__table td {
-  padding: var(--space-4);
+  padding: var(--spacing-4);
   text-align: left;
   border: 1px solid var(--lb-quaternary);
+
 }
 
 .plugin__table th {
@@ -121,6 +122,25 @@ const updateData = () => {
 }
 
 .plugin__input {
-  width: 100%;
+  
+  border: 1px solid var(--lb-tertiary);
+  padding: var(--spacing-4);
 }
+
+[data-theme="dark"] .plugin__input {
+  border-color: var(--db-terti--lb-tertiary);
+  
+
+}
+
+.plugin__field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-16);
+}
+
+
+
 </style> 

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { LineChartOptions } from "./types";
+import type { LineChartOptions } from "./types";
 
 interface LineChartData {
   name: string;

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { BarChartOptions } from "./types";
+import type { BarChartOptions } from "./types";
 
 interface barChartData {
   name: string;

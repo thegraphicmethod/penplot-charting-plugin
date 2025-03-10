@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { BaseChartOptions } from "../types";
+import type { BaseChartOptions } from "../types";
 import ChartDataEditor from "./ChartDataEditor.vue";
 
 const props = defineProps<{
@@ -36,3 +36,14 @@ const handleDataUpdate = (newData: any[]) => {
     </div>
   </div>
 </template> 
+
+<style scoped>
+.plugin__section {
+  padding-top: var(--spacing-20);
+  padding-bottom: var(--spacing-20);
+}
+
+.plugin__title {
+  margin-bottom: var(--spacing-20);
+}
+</style>

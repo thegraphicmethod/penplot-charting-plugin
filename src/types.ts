@@ -8,7 +8,7 @@ export interface BarChartOptions extends BaseChartOptions {
 }
 
 export interface PieChartOptions extends BaseChartOptions {
-  // Pie specific options can be added here
+  innerRadius?: number; // 0 to 1, where 1 would be maximum possible inner radius
 }
 
 export interface LineChartOptions extends BaseChartOptions {

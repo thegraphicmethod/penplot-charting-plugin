@@ -63,7 +63,7 @@ const handleCreate = (data: { type: 'bar' | 'pie' | 'line', options: BaseChartOp
 <template>
   <main :data-theme="theme" class="plugin">
     <div class="plugin__content">
-      <h2 class="plugin__title">Choose chart type</h2>
+      <h2 class="plugin__title title-l">Choose chart type</h2>
       <div class="plugin__tabs">
         <button 
           class="plugin__tab-item"
@@ -114,9 +114,13 @@ const handleCreate = (data: { type: 'bar' | 'pie' | 'line', options: BaseChartOp
   padding: var(--spacing-20);
 }
 
+.plugin__title {
+  margin-bottom: var(--spacing-20);
+}
+
 .plugin__tabs {
   display: flex;
-  gap: var(--space-8);
+  gap: var(--spacing-8);
 }
 
 .plugin__tab-item {
