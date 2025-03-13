@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { LineChartOptions } from "../types";
+import type { LineChartOptions, ChartCreateMessage } from "../types";
 import LineDataEditor from "./LineDataEditor.vue";
 import * as d3 from 'd3';
+import { createLineChart } from "../createLineChart";
 
 const props = defineProps<{
   defaultOptions: LineChartOptions
 }>();
 
 const emit = defineEmits<{
-  (e: 'create', data: { type: 'line', options: LineChartOptions, data: any[] }): void
+  (e: 'create', data: ChartCreateMessage & { type: 'line', options: LineChartOptions }): void
 }>();
 
 const currentData = ref([]);
@@ -18,15 +19,23 @@ const showDots = ref(true);
 const showArea = ref(false);
 
 const handleCreate = () => {
+  const chartData = createLineChart(currentData.value, {
+    ...props.defaultOptions,
+    showGrid: showGrid.value,
+    showDots: showDots.value,
+    showArea: showArea.value,
+    colorScheme: d3.schemeTableau10
+  });
+
   emit('create', { 
     type: 'line', 
     options: {
       ...props.defaultOptions,
       showGrid: showGrid.value,
       showDots: showDots.value,
-      showArea: showArea.value,
-      colorScheme: d3.schemeTableau10
+      showArea: showArea.value
     },
+    content: chartData,
     data: currentData.value
   });
 };

@@ -1,29 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { PieChartOptions } from "../types";
+import type { PieChartOptions, ChartCreateMessage } from "../types";
 import ChartDataEditor from "./ChartDataEditor.vue";
 import * as d3 from 'd3';
+import { createPieChart } from "../createPieChart";
 
 const props = defineProps<{
   defaultOptions: PieChartOptions
 }>();
 
 const emit = defineEmits<{
-  (e: 'create', data: { type: 'pie', options: PieChartOptions, data: any[] }): void
+  (e: 'create', data: ChartCreateMessage & { type: 'pie', options: PieChartOptions }): void
 }>();
 
 const currentData = ref([]);
 const innerRadius = ref(0);
 
 const handleCreate = () => {
+  const chartData = createPieChart(currentData.value, {
+    ...props.defaultOptions,
+    innerRadius: innerRadius.value,
+    colorScheme: d3.schemeTableau10
+  });
+
   emit('create', { 
     type: 'pie', 
     options: {
-      width: 450,
-      height: 450,
-      innerRadius: innerRadius.value,
-      colorScheme: d3.schemeTableau10
+      ...props.defaultOptions,
+      innerRadius: innerRadius.value
     },
+    content: chartData,
     data: currentData.value
   });
 };

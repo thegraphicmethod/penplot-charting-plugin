@@ -1,29 +1,37 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import * as d3 from 'd3';
-import type { RadarChartOptions } from "../types";
+import type { RadarChartOptions, ChartCreateMessage } from "../types";
 import LineDataEditor from "./LineDataEditor.vue";
+import { createRadarChart } from "../createRadarChart";
 
 const props = defineProps<{
   defaultOptions: RadarChartOptions
 }>();
 
 const emit = defineEmits<{
-  (e: 'create', data: { type: 'radar', options: RadarChartOptions, data: any[] }): void
+  (e: 'create', data: ChartCreateMessage & { type: 'radar', options: RadarChartOptions }): void
 }>();
 
 const currentData = ref([]);
 const showFill = ref(true);
 
 const handleCreate = () => {
+  const chartData = createRadarChart(currentData.value, {
+    ...props.defaultOptions,
+    showFill: showFill.value,
+    gridColor: "#E2E8F0",
+    colorScheme: d3.schemeTableau10
+  });
+
   emit('create', { 
-    type: 'radar', 
+    type: 'radar',
     options: {
       ...props.defaultOptions,
       showFill: showFill.value,
-      gridColor: "#E2E8F0",
-      colorScheme: d3.schemeTableau10
+      gridColor: "#E2E8F0"
     },
+    content: chartData,
     data: currentData.value
   });
 };

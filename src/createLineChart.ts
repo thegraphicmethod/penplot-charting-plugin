@@ -1,12 +1,17 @@
 import * as d3 from "d3";
-import type { LineChartOptions } from "./types";
+import type { LineChartOptions, TextData } from "./types";
 
 interface LineData {
   x: string;
   series: { [key: string]: number };
 }
 
-export function createLineChart(data: LineData[], options: LineChartOptions = {}): string {
+interface LineChartResult {
+  svg: string;
+  texts: TextData[];
+}
+
+export function createLineChart(data: LineData[], options: LineChartOptions = {}): LineChartResult {
   // Set the dimensions and margins
   const margin = { top: 20, right: 60, bottom: 30, left: 50 };
   const width = (options.width || 600) - margin.left - margin.right;
@@ -136,11 +141,57 @@ export function createLineChart(data: LineData[], options: LineChartOptions = {}
     .attr("height", 15)
     .attr("fill", colorScale);
 
-  legend.append("text")
-    .attr("x", 20)
-    .attr("y", 7.5)
-    .attr("dy", "0.32em")
-    .text(d => `Series ${d.replace('y', '')}`);
 
-  return svg.node()?.outerHTML || "";
+  // legend.append("text")
+  //   .attr("x", 20)
+  //   .attr("y", 7.5)
+  //   .attr("dy", "0.32em")
+  //   .text(d => `Series ${d.replace('y', '')}`);
+
+  // Create array for text elements
+  const texts: TextData[] = [];
+
+  // // Add axis labels
+  // data.forEach((d, i) => {
+  //   texts.push({
+  //     content: d.x,
+  //     x: margin.left + (x(d.x) || 0),
+  //     y: height + margin.top + 20, // Below x-axis
+  //     align: 'center',
+  //     fontSize: "12px",
+  //     fontFamily: "Work Sans",
+  //     fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+  //   });
+  // });
+
+  // // Add y-axis labels
+  // y.ticks(5).forEach(tick => {
+  //   texts.push({
+  //     content: tick.toString(),
+  //     x: margin.left - 10,
+  //     y: margin.top + y(tick),
+  //     align: 'right',
+  //     fontSize: "12px",
+  //     fontFamily: "Work Sans",
+  //     fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+  //   });
+  // });
+
+  // Add legend texts
+  seriesKeys.forEach((key, i) => {
+    texts.push({
+      content: `Series ${key.replace('y', '')}`,
+      x: width + margin.left + 30,
+      y: margin.top + (i * 20),
+      align: 'left',
+      fontSize: "12px",
+      fontFamily: "Work Sans",
+      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+    });
+  });
+
+  return {
+    svg: svg.node()?.outerHTML || "",
+    texts
+  };
 } 

@@ -1,12 +1,17 @@
 import * as d3 from "d3";
-import type { RadarChartOptions } from "./types";
+import type { RadarChartOptions, TextData } from "./types";
 
 interface LineData {
   x: string;
   series: { [key: string]: number };
 }
 
-export function createRadarChart(data: LineData[], options: RadarChartOptions = {}): string {
+interface RadarChartResult {
+  svg: string;
+  texts: TextData[];
+}
+
+export function createRadarChart(data: LineData[], options: RadarChartOptions = {}): RadarChartResult {
   const width = options.width || 450;
   const height = options.height || 450;
   const margin = 40;
@@ -118,21 +123,40 @@ export function createRadarChart(data: LineData[], options: RadarChartOptions = 
       .attr("fill", seriesColor);
   });
 
-  // Add labels
-  g.selectAll("text")
-    .data(data)
-    .join("text")
-    .attr("x", (_, i) => (radius + 20) * Math.cos(getAngle(i)))
-    .attr("y", (_, i) => (radius + 20) * Math.sin(getAngle(i)))
-    .attr("dy", "0.35em")
-    .attr("text-anchor", (_, i) => {
-      const angle = getAngle(i);
-      if (Math.abs(angle) < Math.PI / 2) return "start";
-      if (Math.abs(angle) > Math.PI / 2) return "end";
-      return "middle";
-    })
-    .text(d => d.x)
-    .attr("fill", "#1A1A1A");
+  // Update the texts array to use the new interface
+  const texts: TextData[] = data.map((d, i) => {
+    const angle = getAngle(i);
+    const x = (radius + 20) * Math.cos(angle);
+    const y = (radius + 20) * Math.sin(angle);
+    
+    // Determine text alignment based on angle
+    let align: 'left' | 'center' | 'right' = 'center';
+    if (Math.abs(angle) < Math.PI / 2) align = 'left';
+    if (Math.abs(angle) > Math.PI / 2) align = 'right';
+
+    return {
+      content: d.x,
+      x: width/2 + x,
+      y: height/2 + y,
+      align,
+      fontSize: "12px",
+      fontFamily: "Work Sans",
+      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+    };
+  });
+
+  // Update legend texts
+  seriesKeys.forEach((key, i) => {
+    texts.push({
+      content: `Series ${key.replace('y', '')}`,
+      x: width - 40,
+      y: 20 + i * 20,
+      align: 'left',
+      fontSize: "12px",
+      fontFamily: "Work Sans",
+      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+    });
+  });
 
   // Add legend
   const legend = g.append("g")
@@ -149,11 +173,8 @@ export function createRadarChart(data: LineData[], options: RadarChartOptions = 
     .attr("height", 15)
     .attr("fill", colorScale);
 
-  legend.append("text")
-    .attr("x", 20)
-    .attr("y", 7.5)
-    .attr("dy", "0.32em")
-    .text(d => `Series ${d.replace('y', '')}`);
-
-  return svg.node()?.outerHTML || "";
+  return {
+    svg: svg.node()?.outerHTML || "",
+    texts
+  };
 } 

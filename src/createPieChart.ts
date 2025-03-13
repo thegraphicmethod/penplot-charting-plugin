@@ -1,18 +1,24 @@
 import * as d3 from "d3";
-import type { PieChartOptions } from "./types";
+import type { PieChartOptions, TextData } from "./types";
 
 interface PieChartData {
   name: string;
   value: number;
 }
 
-export function createPieChart(data: PieChartData[], options: PieChartOptions = {}): string {
+interface PieChartResult {
+  svg: string;
+  texts: TextData[];
+}
+
+export function createPieChart(data: PieChartData[], options: PieChartOptions = {}): PieChartResult {
   // Set the dimensions and margins
   const width = options.width || 450;
   const height = options.height || 450;
   const margin = 40;
   const radius = Math.min(width, height) / 2 - margin;
 
+  console.log('createpiechart',options)
   // Create color scale
   const colorScale = d3.scaleOrdinal<string>()
     .domain(data.map(d => d.name))
@@ -47,11 +53,39 @@ export function createPieChart(data: PieChartData[], options: PieChartOptions = 
     .attr("d", arc)
     .attr("fill", d => colorScale(d.data.name));
 
-  // Add labels
-  arcs.append("text")
-    .attr("transform", d => `translate(${arc.centroid(d)})`)
-    .attr("text-anchor", "middle")
-    .text(d => d.data.name);
+  // Create array for text elements
+  const texts: TextData[] = [];
 
-  return svg.node()?.outerHTML || "";
+  // Calculate positions for labels
+  pie(data).forEach(d => {
+    const centroid = arc.centroid(d);
+    const x = width/2 + centroid[0];
+    const y = height/2 + centroid[1];
+    
+    texts.push({
+      content: d.data.name,
+      x,
+      y,
+      align: 'center',
+      fontSize: "12px",
+      fontFamily: "Work Sans",
+      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+    });
+
+    // Add value labels below the name
+    texts.push({
+      content: d.data.value.toString(),
+      x,
+      y: y + 15,
+      align: 'center',
+      fontSize: "10px",
+      fontFamily: "Work Sans",
+      fills: [{ fillColor: "#666666", fillOpacity: 1 }]
+    });
+  });
+
+  return {
+    svg: svg.node()?.outerHTML || "",
+    texts
+  };
 } 

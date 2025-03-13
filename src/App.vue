@@ -4,7 +4,7 @@ import { createBarChart } from "./createBarChart";
 import { createPieChart } from "./createPieChart";
 import { createLineChart } from "./createLineChart";
 import { createRadarChart } from "./createRadarChart";
-import type { BaseChartOptions } from "./types";
+import type { BaseChartOptions, ChartCreateMessage } from "./types";
 import BarChartCreator from "./components/BarChartCreator.vue";
 import PieChartCreator from "./components/PieChartCreator.vue";
 import LineChartCreator from "./components/LineChartCreator.vue";
@@ -39,27 +39,10 @@ const defaultOptions: BaseChartOptions = {
   height: 400
 };
 
-const handleCreate = (data: { type: 'bar' | 'pie' | 'line' | 'radar', options: BaseChartOptions, data: any[] }) => {
-  let chartSvg: string;
-  
-  switch(data.type) {
-    case 'bar':
-      chartSvg = createBarChart(data.data, data.options);
-      break;
-    case 'pie':
-      chartSvg = createPieChart(data.data, data.options);
-      break;
-    case 'line':
-      chartSvg = createLineChart(data.data, data.options);
-      break;
-    case 'radar':
-      chartSvg = createRadarChart(data.data, data.options);
-      break;
-  }
-  
+const handleCreate = (data: ChartCreateMessage) => {
   window.parent.postMessage({ 
     type: "create-chart", 
-    content: chartSvg,
+    content: data.content,
     dimensions: data.options
   }, "*");
 };
