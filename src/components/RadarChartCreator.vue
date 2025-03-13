@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import * as d3 from 'd3';
 import type { RadarChartOptions, ChartCreateMessage } from "../types";
 import LineDataEditor from "./LineDataEditor.vue";
+import ColorSchemeSelector from "./ColorSchemeSelector.vue";
 import { createRadarChart } from "../createRadarChart";
 
 const props = defineProps<{
@@ -15,13 +16,22 @@ const emit = defineEmits<{
 
 const currentData = ref([]);
 const showFill = ref(true);
+const colorScheme = ref<readonly string[]>(d3.schemeTableau10);
+
+// Compute if we have multiple series
+const hasMultipleSeries = computed(() => {
+  if (currentData.value.length === 0) return false;
+  // Check if there are more than one series in the first data point
+  const firstPoint = currentData.value[0];
+  return firstPoint && Object.keys(firstPoint.series || {}).length > 1;
+});
 
 const handleCreate = () => {
   const chartData = createRadarChart(currentData.value, {
     ...props.defaultOptions,
     showFill: showFill.value,
     gridColor: "#E2E8F0",
-    colorScheme: d3.schemeTableau10
+    colorScheme: [...colorScheme.value]
   });
 
   emit('create', { 
@@ -29,7 +39,8 @@ const handleCreate = () => {
     options: {
       ...props.defaultOptions,
       showFill: showFill.value,
-      gridColor: "#E2E8F0"
+      gridColor: "#E2E8F0",
+      colorScheme: [...colorScheme.value]
     },
     content: chartData,
     data: currentData.value
@@ -54,6 +65,11 @@ const handleDataUpdate = (newData: any[]) => {
         Fill Area
       </label>
     </div>
+
+    <ColorSchemeSelector 
+      v-if="hasMultipleSeries"
+      v-model="colorScheme"
+    />
 
     <div class="plugin__section">
       <button type="button" data-appearance="primary" @click="handleCreate">

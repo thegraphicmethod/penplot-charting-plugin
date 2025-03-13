@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { LineChartOptions, ChartCreateMessage } from "../types";
 import LineDataEditor from "./LineDataEditor.vue";
+import ColorSchemeSelector from "./ColorSchemeSelector.vue";
 import * as d3 from 'd3';
 import { createLineChart } from "../createLineChart";
 
@@ -17,6 +18,15 @@ const currentData = ref([]);
 const showGrid = ref(true);
 const showDots = ref(true);
 const showArea = ref(false);
+const colorScheme = ref<readonly string[]>(d3.schemeTableau10);
+
+// Compute if we have multiple series
+const hasMultipleSeries = computed(() => {
+  if (currentData.value.length === 0) return false;
+  // Check if there are more than one series in the first data point
+  const firstPoint = currentData.value[0];
+  return firstPoint && Object.keys(firstPoint.series || {}).length > 1;
+});
 
 const handleCreate = () => {
   const chartData = createLineChart(currentData.value, {
@@ -24,7 +34,7 @@ const handleCreate = () => {
     showGrid: showGrid.value,
     showDots: showDots.value,
     showArea: showArea.value,
-    colorScheme: d3.schemeTableau10
+    colorScheme: [...colorScheme.value]
   });
 
   emit('create', { 
@@ -33,7 +43,8 @@ const handleCreate = () => {
       ...props.defaultOptions,
       showGrid: showGrid.value,
       showDots: showDots.value,
-      showArea: showArea.value
+      showArea: showArea.value,
+      colorScheme: [...colorScheme.value]
     },
     content: chartData,
     data: currentData.value
@@ -80,6 +91,11 @@ const handleDataUpdate = (newData: any[]) => {
         </label>
       </div>
     </div>
+
+    <ColorSchemeSelector 
+      v-if="hasMultipleSeries"
+      v-model="colorScheme"
+    />
 
     <div class="plugin__section">
       <button type="button" data-appearance="primary" @click="handleCreate">

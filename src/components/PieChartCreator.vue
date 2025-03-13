@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
+import * as d3 from 'd3';
 import type { PieChartOptions, ChartCreateMessage } from "../types";
 import ChartDataEditor from "./ChartDataEditor.vue";
-import * as d3 from 'd3';
+import ColorSchemeSelector from "./ColorSchemeSelector.vue";
 import { createPieChart } from "../createPieChart";
 
 const props = defineProps<{
@@ -15,19 +16,25 @@ const emit = defineEmits<{
 
 const currentData = ref([]);
 const innerRadius = ref(0);
+const colorScheme = ref<readonly string[]>(d3.schemeTableau10);
+
+watch(() => colorScheme, (newValue, oldValue) => {
+  console.log('colorScheme',newValue, oldValue)
+})
 
 const handleCreate = () => {
   const chartData = createPieChart(currentData.value, {
     ...props.defaultOptions,
     innerRadius: innerRadius.value,
-    colorScheme: d3.schemeTableau10
+    colorScheme: [...colorScheme.value]
   });
 
   emit('create', { 
     type: 'pie', 
     options: {
       ...props.defaultOptions,
-      innerRadius: innerRadius.value
+      innerRadius: innerRadius.value,
+      colorScheme: [...colorScheme.value]
     },
     content: chartData,
     data: currentData.value
@@ -59,6 +66,8 @@ const handleDataUpdate = (newData: any[]) => {
       </div>
     </div>
 
+    <ColorSchemeSelector v-model="colorScheme" />
+
     <div class="plugin__section">
       <button type="button" data-appearance="primary" @click="handleCreate">
         Create {{ innerRadius > 0 ? 'Doughnut' : 'Pie' }} Chart
@@ -74,7 +83,6 @@ const handleDataUpdate = (newData: any[]) => {
 }
 
 .plugin__range-field {
-
   display: flex;
   align-items: center;
   gap: var(--spacing-8);
