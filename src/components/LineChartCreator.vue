@@ -1,23 +1,94 @@
 <script setup lang="ts">
-import type { BaseChartOptions } from "../types";
+import { ref } from 'vue';
+import type { LineChartOptions } from "../types";
+import LineDataEditor from "./LineDataEditor.vue";
+import * as d3 from 'd3';
 
 const props = defineProps<{
-  defaultOptions: BaseChartOptions
+  defaultOptions: LineChartOptions
 }>();
 
 const emit = defineEmits<{
-  (e: 'create', data: { type: 'line', options: BaseChartOptions }): void
+  (e: 'create', data: { type: 'line', options: LineChartOptions, data: any[] }): void
 }>();
 
+const currentData = ref([]);
+const showGrid = ref(true);
+const showDots = ref(true);
+const showArea = ref(false);
+
 const handleCreate = () => {
-  emit('create', { type: 'line', options: props.defaultOptions });
+  emit('create', { 
+    type: 'line', 
+    options: {
+      ...props.defaultOptions,
+      showGrid: showGrid.value,
+      showDots: showDots.value,
+      showArea: showArea.value,
+      colorScheme: d3.schemeTableau10
+    },
+    data: currentData.value
+  });
+};
+
+const handleDataUpdate = (newData: any[]) => {
+  currentData.value = newData;
 };
 </script>
 
 <template>
-  <div class="plugin__section">
-    <button type="button" data-appearance="primary" @click="handleCreate">
-      Create Line Chart
-    </button>
+  <div>
+    <LineDataEditor @update="handleDataUpdate" />
+    
+    <div class="plugin__field-group">
+      <div class="plugin__field">
+        <label class="plugin__label">
+          <input 
+            type="checkbox" 
+            v-model="showGrid"
+          >
+          Show Grid
+        </label>
+      </div>
+
+      <div class="plugin__field">
+        <label class="plugin__label">
+          <input 
+            type="checkbox" 
+            v-model="showDots"
+          >
+          Show Dots
+        </label>
+      </div>
+
+      <div class="plugin__field">
+        <label class="plugin__label">
+          <input 
+            type="checkbox" 
+            v-model="showArea"
+          >
+          Show Area
+        </label>
+      </div>
+    </div>
+
+    <div class="plugin__section">
+      <button type="button" data-appearance="primary" @click="handleCreate">
+        Create Line Chart
+      </button>
+    </div>
   </div>
-</template> 
+</template>
+
+<style scoped>
+.plugin__section {
+  padding-top: var(--spacing-20);
+  padding-bottom: var(--spacing-20);
+}
+
+.plugin__field-group {
+  display: flex;
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-16);
+}
+</style> 

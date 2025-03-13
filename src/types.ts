@@ -1,6 +1,7 @@
 export interface BaseChartOptions {
   width?: number;
   height?: number;
+  colorScheme?: readonly string[]; // Add to base options since it's used by multiple charts
 }
 
 export interface BarChartOptions extends BaseChartOptions {
@@ -12,5 +13,12 @@ export interface PieChartOptions extends BaseChartOptions {
 }
 
 export interface LineChartOptions extends BaseChartOptions {
-  // Line specific options can be added here
+  showGrid?: boolean;
+  showDots?: boolean;
+  showArea?: boolean;
+}
+
+export interface RadarChartOptions extends BaseChartOptions {
+  showFill?: boolean;
+  gridColor?: string;
 } 

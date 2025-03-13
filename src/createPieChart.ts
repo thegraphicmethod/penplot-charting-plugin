@@ -14,9 +14,9 @@ export function createPieChart(data: PieChartData[], options: PieChartOptions = 
   const radius = Math.min(width, height) / 2 - margin;
 
   // Create color scale
-  const color = d3.scaleOrdinal<string>()
+  const colorScale = d3.scaleOrdinal<string>()
     .domain(data.map(d => d.name))
-    .range(d3.schemeCategory10);
+    .range(options.colorScheme || d3.schemeTableau10);
 
   // Create SVG
   const svg = d3.create("svg")
@@ -45,7 +45,7 @@ export function createPieChart(data: PieChartData[], options: PieChartOptions = 
   // Add path elements
   arcs.append("path")
     .attr("d", arc)
-    .attr("fill", d => color(d.data.name));
+    .attr("fill", d => colorScale(d.data.name));
 
   // Add labels
   arcs.append("text")

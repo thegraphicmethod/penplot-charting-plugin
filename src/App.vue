@@ -3,13 +3,15 @@ import { onMounted, ref } from "vue";
 import { createBarChart } from "./createBarChart";
 import { createPieChart } from "./createPieChart";
 import { createLineChart } from "./createLineChart";
+import { createRadarChart } from "./createRadarChart";
 import type { BaseChartOptions } from "./types";
 import BarChartCreator from "./components/BarChartCreator.vue";
 import PieChartCreator from "./components/PieChartCreator.vue";
 import LineChartCreator from "./components/LineChartCreator.vue";
+import RadarChartCreator from "./components/RadarChartCreator.vue";
 
 const theme = ref<string | null>(null);
-const activeTab = ref<'bar' | 'pie' | 'line'>('bar');
+const activeTab = ref<'bar' | 'pie' | 'line' | 'radar'>('bar');
 
 onMounted(() => {
   const url = new URL(window.location.href);
@@ -37,7 +39,7 @@ const defaultOptions: BaseChartOptions = {
   height: 400
 };
 
-const handleCreate = (data: { type: 'bar' | 'pie' | 'line', options: BaseChartOptions, data: any[] }) => {
+const handleCreate = (data: { type: 'bar' | 'pie' | 'line' | 'radar', options: BaseChartOptions, data: any[] }) => {
   let chartSvg: string;
   
   switch(data.type) {
@@ -49,6 +51,9 @@ const handleCreate = (data: { type: 'bar' | 'pie' | 'line', options: BaseChartOp
       break;
     case 'line':
       chartSvg = createLineChart(data.data, data.options);
+      break;
+    case 'radar':
+      chartSvg = createRadarChart(data.data, data.options);
       break;
   }
   
@@ -86,6 +91,13 @@ const handleCreate = (data: { type: 'bar' | 'pie' | 'line', options: BaseChartOp
         >
           Pie / Doughnut
         </button>
+        <button 
+          class="plugin__tab-item"
+          :class="{ 'is-selected': activeTab === 'radar' }" 
+          @click="activeTab = 'radar'"
+        >
+          Radar
+        </button>
       </div>
 
       <div class="plugin__section " >
@@ -101,6 +113,11 @@ const handleCreate = (data: { type: 'bar' | 'pie' | 'line', options: BaseChartOp
         />
         <LineChartCreator
           v-if="activeTab === 'line'"
+          :default-options="defaultOptions"
+          @create="handleCreate"
+        />
+        <RadarChartCreator
+          v-if="activeTab === 'radar'"
           :default-options="defaultOptions"
           @create="handleCreate"
         />

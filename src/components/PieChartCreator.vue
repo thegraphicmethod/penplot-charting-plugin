@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { PieChartOptions } from "../types";
+import type { PieChartOptions } from "../types";
 import ChartDataEditor from "./ChartDataEditor.vue";
+import * as d3 from 'd3';
 
 const props = defineProps<{
   defaultOptions: PieChartOptions
@@ -20,7 +21,8 @@ const handleCreate = () => {
     options: {
       width: 450,
       height: 450,
-      innerRadius: innerRadius.value
+      innerRadius: innerRadius.value,
+      colorScheme: d3.schemeTableau10
     },
     data: currentData.value
   });

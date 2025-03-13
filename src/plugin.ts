@@ -25,8 +25,21 @@ penpot.ui.onMessage((message: any) => {
       board.resize(width, height);
       board.appendChild(chartGroup);
       chartGroup.x = 0;
-      chartGroup.y = 0;
-      
+      chartGroup.y = 0;     
+      penpot.ungroup(chartGroup);
+      board.children.forEach(child => {
+        console.log(child.name);
+      });
+      const baseBackground = board.children.find(child => {
+        return child.name == "base-background";
+      });
+      if (baseBackground) {
+       baseBackground.remove();
+      }
+      const grp = board.children[0] as penpot.Group;
+      grp.ungroup();
+
+ 
     }
   }
 });
