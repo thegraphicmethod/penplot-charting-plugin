@@ -1,7 +1,7 @@
 {
-  "name": "PenPlot",
+  "name": "PenPLOT",
   "description": "A plugin for Penpot to create charts",
   "code": "/plugin.js",
-  "icon": "/icon.png",
+  "icon": "/penplotico.png",
   "permissions": ["page:read", "content:read", "file:read", "selection:read", "content:write"]
 }

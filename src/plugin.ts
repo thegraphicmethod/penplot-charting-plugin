@@ -1,7 +1,7 @@
 import type { PluginMessageEvent } from "./model";
 import type { TextData } from "./types";
 
-penpot.ui.open("PenPlot", `?theme=${penpot.theme}`, {
+penpot.ui.open("PenPLOT", `?theme=${penpot.theme}`, {
   width: 640,
   height: 700,
 });
