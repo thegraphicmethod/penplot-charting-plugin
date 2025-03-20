@@ -69,7 +69,7 @@ export function createBarChart(data: BarChartData[], options: BarChartOptions = 
     texts.push({
       content: d.value.toString(),
       x: margin.left + (x(d.name) || 0) + x.bandwidth()/2,
-      y: margin.top + y(d.value) - 5, // Position slightly above the bar
+      y: margin.top + y(d.value) - 16, // Position slightly above the bar
       align: 'center',
       fontSize: "12px",
       fontFamily: "Work Sans",

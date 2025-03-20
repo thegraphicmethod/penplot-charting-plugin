@@ -3,7 +3,7 @@ import type { TextData } from "./types";
 
 penpot.ui.open("PenPlot", `?theme=${penpot.theme}`, {
   width: 640,
-  height: 480,
+  height: 700,
 });
 
 penpot.on("themechange", (theme) => {
@@ -41,16 +41,20 @@ penpot.ui.onMessage((message: any) => {
       (texts as TextData[]).forEach((textData) => {
         const text = penpot.createText(textData.content);
         if (text) {
+          text.align = textData.align;
+          text.growType = "auto-width";
+          text.name = simpleSlugify(textData.content);
+          text.fontSize = textData.fontSize || "12";
+          text.fontFamily = textData.fontFamily || "Work Sans";
+          text.fills = textData.fills || [{ fillColor: "#000000", fillOpacity: 1 }];
+          board.insertChild(1,text);
           text.x = textData.x;
           text.y = textData.y;
-          text.align = textData.align;
-          text.name = simpleSlugify(textData.content);
-          text.fontSize = textData.fontSize || "12px";
-          text.fontFamily = textData.fontFamily || "Work Sans";
-          text.fills = textData.fills || [{ fillColor: "#1A1A1A", fillOpacity: 1 }];
-          board.insertChild(1,text);
+          
+
         }
       });
+      penpot.selection = [board];
     }
   }
 });

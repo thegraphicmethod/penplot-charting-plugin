@@ -67,9 +67,9 @@ export function createPieChart(data: PieChartData[], options: PieChartOptions = 
       x,
       y,
       align: 'center',
-      fontSize: "12px",
+      fontSize: "12",
       fontFamily: "Work Sans",
-      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+      fills: [{ fillColor: "#000000", fillOpacity: 1 }]
     });
 
     // Add value labels below the name
@@ -78,9 +78,9 @@ export function createPieChart(data: PieChartData[], options: PieChartOptions = 
       x,
       y: y + 15,
       align: 'center',
-      fontSize: "10px",
+      fontSize: "10",
       fontFamily: "Work Sans",
-      fills: [{ fillColor: "#666666", fillOpacity: 1 }]
+      fills: [{ fillColor: "#000000", fillOpacity: 1 }]
     });
   });
 

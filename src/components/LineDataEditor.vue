@@ -1,45 +1,154 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-
-interface LineData {
-  x: string;
-  series: { [key: string]: number };
-}
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps<{
-  initialData?: LineData[]
+  initialData?: any[]
 }>();
 
 const emit = defineEmits<{
-  (e: 'update', data: LineData[]): void
+  (e: 'update', data: any[]): void
 }>();
 
-const pointCount = ref(4);
-const seriesCount = ref(2);
-const chartData = ref<LineData[]>([]);
-
-// Initialize with random data
-const generateRandomData = (points: number, series: number) => {
-  return Array.from({ length: points }, (_, i) => ({
-    x: `Point ${i + 1}`,
-    series: Object.fromEntries(
-      Array.from({ length: series }, (_, j) => [
-        `y${j}`,
-        Math.floor(Math.random() * 100)
-      ])
-    )
-  }));
+// Add this function to sanitize series names
+const sanitizeSeriesName = (name: string) => {
+  return name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
 };
 
-// Update data when point count or series count changes
-watch([pointCount, seriesCount], ([newPoints, newSeries]) => {
-  chartData.value = generateRandomData(newPoints, newSeries);
-  emit('update', chartData.value);
-}, { immediate: true });
+// Initialize refs
+const rowCount = ref(4);
+const columnCount = ref(1);
+const headers = ref<string[]>(['x', 'series-1']);
+const rows = ref<Array<{ x: string, series: Record<string, number> }>>([]);
 
-// Update parent when data changes
-const updateData = () => {
-  emit('update', chartData.value);
+// Generate random number between 0 and 100
+const generateRandomValue = () => Math.floor(Math.random() * 100);
+
+// Initialize data function
+const initializeData = () => {
+  rows.value = Array(rowCount.value).fill(null).map((_, i) => ({
+    x: `Item ${i + 1}`,
+    series: Object.fromEntries(
+      headers.value.slice(1).map(h => [h, generateRandomValue()])
+    )
+  }));
+  emitUpdate();
+};
+
+// Update headers function
+const updateHeaders = (newCount: number) => {
+  const targetLength = newCount + 1; // Add 1 for 'x' column
+  const currentHeaders = [...headers.value]; // Create a copy to avoid mutation
+
+  if (targetLength > currentHeaders.length) {
+    // Add new headers with sanitized names
+    for (let i = currentHeaders.length; i < targetLength; i++) {
+      currentHeaders.push(`series-${i}`);
+    }
+  } else {
+    // Remove extra headers
+    currentHeaders.splice(targetLength);
+  }
+
+  headers.value = currentHeaders;
+};
+
+// Update rows function
+const updateRows = () => {
+  rows.value = rows.value.map(row => ({
+    x: row.x,
+    series: Object.fromEntries(
+      headers.value.slice(1).map(h => [h, row.series[h] ?? generateRandomValue()])
+    )
+  }));
+  emitUpdate();
+};
+
+// Watch effects
+watch(rowCount, () => {
+  initializeData();
+});
+
+watch(columnCount, (newCount) => {
+  updateHeaders(newCount);
+  updateRows();
+});
+
+// Initialize on mount
+onMounted(() => {
+  initializeData();
+});
+
+const emitUpdate = () => {
+  if (!rows.value) return; // Guard against undefined rows
+  emit('update', rows.value);
+};
+
+const handlePaste = (event: ClipboardEvent) => {
+  event.preventDefault();
+  const pasteData = event.clipboardData?.getData('text');
+  
+  if (!pasteData) return;
+
+  try {
+    // Split by newlines and filter empty rows
+    const pastedRows = pasteData.split('\n').filter(row => row.trim());
+    
+    // Detect delimiter (tab or comma)
+    const delimiter = pastedRows[0].includes('\t') ? '\t' : ',';
+    
+    // Parse headers from first row and sanitize them
+    const pastedHeaders = pastedRows[0].split(delimiter)
+      .map(h => h.trim())
+      .map((h, i) => i === 0 ? 'x' : sanitizeSeriesName(h));
+    
+    if (pastedHeaders.length < 2) {
+      throw new Error('Data must have at least two columns');
+    }
+
+    // Update column count and headers (subtract 1 to not count 'x' column)
+    columnCount.value = pastedHeaders.length - 1;
+    headers.value = pastedHeaders;
+
+    // Parse data rows
+    const parsedRows = pastedRows.slice(1)
+      .map(row => {
+        const values = row.split(delimiter).map(v => v.trim());
+        if (values.length !== pastedHeaders.length) return null;
+
+        const series: Record<string, number> = {};
+        // Start from index 1 to skip the label column
+        for (let i = 1; i < pastedHeaders.length; i++) {
+          const header = pastedHeaders[i];
+          const value = parseFloat(values[i]);
+          series[header] = isNaN(value) ? 0 : value;
+        }
+
+        return {
+          x: values[0],
+          series
+        };
+      })
+      .filter((row): row is { x: string; series: Record<string, number> } => row !== null);
+
+    if (parsedRows.length > 0) {
+      rowCount.value = parsedRows.length;
+      rows.value = parsedRows;
+      emitUpdate();
+    }
+  } catch (error) {
+    console.error('Error parsing pasted data:', error);
+  }
+};
+
+const updateCell = (rowIndex: number, header: string, value: string) => {
+  if (!rows.value[rowIndex]) return; // Guard against undefined row
+
+  if (header === 'x') {
+    rows.value[rowIndex].x = value;
+  } else {
+    rows.value[rowIndex].series[header] = parseFloat(value) || 0;
+  }
+  emitUpdate();
 };
 </script>
 
@@ -47,12 +156,12 @@ const updateData = () => {
   <div class="chart-editor">
     <div class="plugin__field-group">
       <div class="plugin__field">
-        <label class="plugin__label">Number of points</label>
+        <label class="plugin__label">Number of rows</label>
         <input 
           type="number" 
-          v-model="pointCount"
+          v-model="rowCount"
           min="2"
-          max="10"
+          max="20"
           class="plugin__input"
         >
       </div>
@@ -61,42 +170,38 @@ const updateData = () => {
         <label class="plugin__label">Number of series</label>
         <input 
           type="number" 
-          v-model="seriesCount"
+          v-model="columnCount"
           min="1"
-          max="5"
+          max="10"
           class="plugin__input"
         >
       </div>
     </div>
 
-    <table class="plugin__table">
-      <thead>
-        <tr>
-          <th>X</th>
-          <th v-for="i in seriesCount" :key="i">Y{{ i - 1 }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in chartData" :key="index">
-          <td>
-            <input 
-              type="text"
-              v-model="item.x"
-              class="plugin__input"
-              @change="updateData"
-            >
-          </td>
-          <td v-for="i in seriesCount" :key="i">
-            <input 
-              type="number"
-              v-model="item.series[`y${i-1}`]"
-              class="plugin__input"
-              @change="updateData"
-            >
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="plugin__field">
+      <label class="plugin__label">Data Table (Ctrl/Cmd + V to paste data)</label>
+      <div class="table-container">
+        <table class="plugin__table" @paste="handlePaste">
+          <thead>
+            <tr>
+              <th v-for="header in headers" :key="header">{{ header }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
+              <td v-for="header in headers" :key="header">
+                <input 
+                  type="text"
+                  :value="header === 'x' ? row.x : row.series[header]"
+                  @input="(e) => updateCell(rowIndex, header, (e.target as HTMLInputElement).value)"
+                  class="plugin__input"
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -110,54 +215,76 @@ const updateData = () => {
 .plugin__field-group {
   display: flex;
   gap: var(--spacing-16);
+  margin-bottom: var(--spacing-16);
+}
+
+.plugin__field {
+  flex: 1;
+}
+
+.plugin__input {
+  width: 100%;
+  border: 1px solid var(--lb-tertiary);
+  border-radius: 4px;
+  padding: var(--spacing-4) var(--spacing-8);
+  color: var(--lf-primary);
+  background: none;
+}
+
+.table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--lb-tertiary);
+  border-radius: 4px;
 }
 
 .plugin__table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid var(--lb-quaternary);
 }
 
 .plugin__table th,
 .plugin__table td {
   padding: var(--spacing-4);
   text-align: left;
-  border: 1px solid var(--lb-quaternary);
+  border: 1px solid var(--lb-tertiary);
 }
 
 .plugin__table th {
-  color: var(--lf-primary);
+  position: sticky;
+  top: 0;
   background-color: var(--lb-tertiary);
+  color: var(--lf-primary);
+  z-index: 1;
 }
 
-[data-theme="dark"] .plugin__table {
-  border-color: var(--db-quaternary);
-}
-
-[data-theme="dark"] .plugin__table th,
-[data-theme="dark"] .plugin__table td {
-  border-color: var(--db-quaternary);
-}
-
-[data-theme="dark"] .plugin__table th {
-  color: var(--df-primary);
-  background-color: var(--db-tertiary);
-}
-
-.plugin__input {
+.plugin__table input {
   width: 100%;
-  border: 1px solid var(--lb-tertiary);
+  border: none;
+  background: none;
   padding: var(--spacing-4);
 }
 
 [data-theme="dark"] .plugin__input {
   border-color: var(--db-tertiary);
+  color: var(--df-primary);
 }
 
-.plugin__field {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--spacing-8);
+[data-theme="dark"] .table-container {
+  border-color: var(--db-tertiary);
+}
+
+[data-theme="dark"] .plugin__table th,
+[data-theme="dark"] .plugin__table td {
+  border-color: var(--db-tertiary);
+}
+
+[data-theme="dark"] .plugin__table th {
+  background-color: var(--db-tertiary);
+  color: var(--df-primary);
+}
+
+[data-theme="dark"] .plugin__table input {
+  color: var(--df-primary);
 }
 </style> 

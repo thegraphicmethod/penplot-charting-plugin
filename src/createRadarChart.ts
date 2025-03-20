@@ -19,29 +19,30 @@ export function createRadarChart(data: LineData[], options: RadarChartOptions = 
 
   // Default colors
   const gridColor = options.gridColor || "#E2E8F0";
-  
+
   // Get all series keys
   const seriesKeys = Object.keys(data[0]?.series || {}).sort();
-  
+
   // Create color scale for different series
-  const colorScale = d3.scaleOrdinal<string>()
+  const colorScale = d3
+    .scaleOrdinal<string>()
     .domain(seriesKeys)
     .range(options.colorScheme || d3.schemeTableau10);
 
   // Create SVG
-  const svg = d3.create("svg")
-    .attr("width", width)
-    .attr("height", height);
+  const svg = d3.create("svg").attr("width", width).attr("height", height);
 
   // Create chart group and center it
-  const g = svg.append("g")
+  const g = svg
+    .append("g")
     .attr("transform", `translate(${width / 2},${height / 2})`);
 
   // Scale for the radius
-  const rScale = d3.scaleLinear()
+  const rScale = d3
+    .scaleLinear()
     .domain([
       0,
-      d3.max(data, d => d3.max(seriesKeys, key => d.series[key])) || 0
+      d3.max(data, (d) => d3.max(seriesKeys, (key) => d.series[key])) || 0,
     ])
     .range([0, radius]);
 
@@ -75,20 +76,21 @@ export function createRadarChart(data: LineData[], options: RadarChartOptions = 
   });
 
   // Create line generator
-  const lineGenerator = d3.line<[number, number]>()
-    .x(d => d[0])
-    .y(d => d[1]);
+  const lineGenerator = d3
+    .line<[number, number]>()
+    .x((d) => d[0])
+    .y((d) => d[1]);
 
   // Draw each series
-  seriesKeys.forEach(key => {
+  seriesKeys.forEach((key) => {
     // Create points for this series
     const points = data.map((d, i) => {
       const value = rScale(d.series[key]);
       const angle = getAngle(i);
-      return [
-        value * Math.cos(angle),
-        value * Math.sin(angle)
-      ] as [number, number];
+      return [value * Math.cos(angle), value * Math.sin(angle)] as [
+        number,
+        number,
+      ];
     });
 
     // Close the path by adding the first point again
@@ -117,64 +119,86 @@ export function createRadarChart(data: LineData[], options: RadarChartOptions = 
       .data(points.slice(0, -1))
       .join("circle")
       .attr("class", `data-point-${key}`)
-      .attr("cx", d => d[0])
-      .attr("cy", d => d[1])
+      .attr("cx", (d) => d[0])
+      .attr("cy", (d) => d[1])
       .attr("r", 4)
       .attr("fill", seriesColor);
   });
+
+//   // Add debug circles at text anchor points
+//   g.selectAll("circle.debug-text-anchor")
+//     .data(data)
+//     .join("circle")
+//     .attr("class", "debug-text-anchor")
+//     .attr("cx", (_, i) => {
+//       const angle = getAngle(i);
+//       return (radius + 20) * Math.cos(angle);
+//     })
+//     .attr("cy", (_, i) => {
+//       const angle = getAngle(i);
+//       return  (radius + 20) * Math.sin(angle);
+//     })
+//     .attr("r", 2)
+//     .attr("fill", "red");
+
 
   // Update the texts array to use the new interface
   const texts: TextData[] = data.map((d, i) => {
     const angle = getAngle(i);
     const x = (radius + 20) * Math.cos(angle);
     const y = (radius + 20) * Math.sin(angle);
-    
+
     // Determine text alignment based on angle
-    let align: 'left' | 'center' | 'right' = 'center';
-    if (Math.abs(angle) < Math.PI / 2) align = 'left';
-    if (Math.abs(angle) > Math.PI / 2) align = 'right';
+    let align: "left" | "center" | "right" = "center";
+    if (Math.abs(angle) < Math.PI / 2) align = "left";
+    if (Math.abs(angle) > Math.PI / 2) align = "right";
 
     return {
       content: d.x,
-      x: width/2 + x,
-      y: height/2 + y,
+      x: width / 2 + x,
+      y: height / 2 + y,
       align,
-      fontSize: "12px",
+      fontSize: "12",
       fontFamily: "Work Sans",
-      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+      fills: [{ fillColor: "#000000", fillOpacity: 1 }],
     };
   });
 
   // Update legend texts
   seriesKeys.forEach((key, i) => {
     texts.push({
-      content: `Series ${key.replace('y', '')}`,
+      content: `Series ${key.replace("y", "")}`,
       x: width - 40,
       y: 20 + i * 20,
-      align: 'left',
-      fontSize: "12px",
+      align: "left",
+      fontSize: "12",
       fontFamily: "Work Sans",
-      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }],
     });
   });
 
   // Add legend
-  const legend = g.append("g")
+  const legend = g
+    .append("g")
     .attr("font-family", "sans-serif")
     .attr("font-size", 10)
     .attr("text-anchor", "start")
     .selectAll("g")
     .data(seriesKeys)
     .join("g")
-    .attr("transform", (_, i) => `translate(${width/2 - 60},${-height/2 + 20 + i * 20})`);
+    .attr(
+      "transform",
+      (_, i) => `translate(${width / 2 - 60},${-height / 2 + 20 + i * 20})`
+    );
 
-  legend.append("rect")
+  legend
+    .append("rect")
     .attr("width", 15)
     .attr("height", 15)
     .attr("fill", colorScale);
 
   return {
     svg: svg.node()?.outerHTML || "",
-    texts
+    texts,
   };
 } 

@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { createBarChart } from "./createBarChart";
-import { createPieChart } from "./createPieChart";
-import { createLineChart } from "./createLineChart";
-import { createRadarChart } from "./createRadarChart";
 import type { BaseChartOptions, ChartCreateMessage } from "./types";
 import BarChartCreator from "./components/BarChartCreator.vue";
 import PieChartCreator from "./components/PieChartCreator.vue";
@@ -11,7 +7,7 @@ import LineChartCreator from "./components/LineChartCreator.vue";
 import RadarChartCreator from "./components/RadarChartCreator.vue";
 
 const theme = ref<string | null>(null);
-const activeTab = ref<'bar' | 'pie' | 'line' | 'radar'>('bar');
+const activeTab = ref<'bar' | 'pie' | 'line' | 'radar'>('line');
 
 onMounted(() => {
   const url = new URL(window.location.href);
@@ -28,11 +24,6 @@ onMounted(() => {
   });
 });
 
-const sampleData = [
-  { name: "A", value: 10 },
-  { name: "B", value: 20 },
-  { name: "C", value: 30 },
-];
 
 const defaultOptions: BaseChartOptions = {
   width: 600,
@@ -58,7 +49,7 @@ const handleCreate = (data: ChartCreateMessage) => {
           :class="{ 'is-selected': activeTab === 'line' }" 
           @click="activeTab = 'line'"
         >
-          Line
+          Line/Area
         </button>
         <button 
           class="plugin__tab-item"

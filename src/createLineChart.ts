@@ -184,9 +184,9 @@ export function createLineChart(data: LineData[], options: LineChartOptions = {}
       x: width + margin.left + 30,
       y: margin.top + (i * 20),
       align: 'left',
-      fontSize: "12px",
+      fontSize: "12",
       fontFamily: "Work Sans",
-      fills: [{ fillColor: "#1A1A1A", fillOpacity: 1 }]
+      fills: [{ fillColor: "#000000", fillOpacity: 1 }]
     });
   });
 
