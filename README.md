@@ -1,5 +1,4 @@
-# Vue example plugin
+# PenPlot
 
-This is a plugin example for penpot.
+A plugin for Penpot to create charts 
 
-For the full documentation go to: [Plugins](https://help.penpot.app/plugins/).

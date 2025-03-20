@@ -1,6 +1,6 @@
 {
-  "name": "Vue example plugin",
-  "description": "Example plugin with vue",
+  "name": "PenPlot",
+  "description": "A plugin for Penpot to create charts",
   "code": "/plugin.js",
   "icon": "/icon.png",
   "permissions": ["page:read", "content:read", "file:read", "selection:read", "content:write"]
