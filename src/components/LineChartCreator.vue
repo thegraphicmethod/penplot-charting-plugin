@@ -66,6 +66,8 @@ const handleDataUpdate = (newData: any[]) => {
           <input 
             type="checkbox" 
             v-model="showGrid"
+            class="checkbox-input"
+            
           >
           Show Grid
         </label>
@@ -76,6 +78,8 @@ const handleDataUpdate = (newData: any[]) => {
           <input 
             type="checkbox" 
             v-model="showDots"
+            class="checkbox-input"
+            
           >
           Show Dots
         </label>
@@ -83,9 +87,11 @@ const handleDataUpdate = (newData: any[]) => {
 
       <div class="plugin__field">
         <label class="plugin__label">
-          <input 
+          <input  
             type="checkbox" 
             v-model="showArea"
+            class="checkbox-input"
+            
           >
           Show Area
         </label>

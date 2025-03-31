@@ -18,7 +18,6 @@ export function createPieChart(data: PieChartData[], options: PieChartOptions = 
   const margin = 40;
   const radius = Math.min(width, height) / 2 - margin;
 
-  console.log('createpiechart',options)
   // Create color scale
   const colorScale = d3.scaleOrdinal<string>()
     .domain(data.map(d => d.name))

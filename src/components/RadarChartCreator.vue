@@ -61,6 +61,7 @@ const handleDataUpdate = (newData: any[]) => {
         <input 
           type="checkbox" 
           v-model="showFill"
+          class="checkbox-input"
         >
         Fill Area
       </label>

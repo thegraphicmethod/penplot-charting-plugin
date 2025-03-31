@@ -46,7 +46,7 @@ const updateData = () => {
         v-model="sliceCount"
         min="2"
         max="10"
-        class="plugin__input"
+        class="plugin__input input"
       >
     </div>
 
@@ -63,7 +63,7 @@ const updateData = () => {
             <input 
               type="text"
               v-model="item.name"
-              class=""
+              class="input"
               @change="updateData"
             >
           </td>
@@ -71,7 +71,7 @@ const updateData = () => {
             <input 
               type="number"
               v-model="item.value"
-              class=""
+              class="input"
               @change="updateData"
             >
           </td>
@@ -121,11 +121,11 @@ const updateData = () => {
   background-color: var(--db-tertiary);
 }
 
-.plugin__input {
+/* .plugin__input {
   
   border: 1px solid var(--lb-tertiary);
   padding: var(--spacing-4);
-}
+} */
 
 [data-theme="dark"] .plugin__input {
   border-color: var(--db-terti--lb-tertiary);

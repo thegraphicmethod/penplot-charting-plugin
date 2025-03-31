@@ -18,9 +18,9 @@ const currentData = ref([]);
 const innerRadius = ref(0);
 const colorScheme = ref<readonly string[]>(d3.schemeTableau10);
 
-watch(() => colorScheme, (newValue, oldValue) => {
-  console.log('colorScheme',newValue, oldValue)
-})
+// watch(() => colorScheme, (newValue, oldValue) => {
+//   console.log('colorScheme',newValue, oldValue)
+// })
 
 const handleCreate = () => {
   const chartData = createPieChart(currentData.value, {

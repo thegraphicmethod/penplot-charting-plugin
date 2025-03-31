@@ -162,7 +162,7 @@ const updateCell = (rowIndex: number, header: string, value: string) => {
           v-model="rowCount"
           min="2"
           max="20"
-          class="plugin__input"
+          class="plugin__input input"
         >
       </div>
 
@@ -173,7 +173,7 @@ const updateCell = (rowIndex: number, header: string, value: string) => {
           v-model="columnCount"
           min="1"
           max="10"
-          class="plugin__input"
+          class="plugin__input input"
         >
       </div>
     </div>
@@ -194,7 +194,7 @@ const updateCell = (rowIndex: number, header: string, value: string) => {
                   type="text"
                   :value="header === 'x' ? row.x : row.series[header]"
                   @input="(e) => updateCell(rowIndex, header, (e.target as HTMLInputElement).value)"
-                  class="plugin__input"
+                  class="plugin__input input"
                 >
               </td>
             </tr>
@@ -223,12 +223,9 @@ const updateCell = (rowIndex: number, header: string, value: string) => {
 }
 
 .plugin__input {
-  width: 100%;
-  border: 1px solid var(--lb-tertiary);
-  border-radius: 4px;
-  padding: var(--spacing-4) var(--spacing-8);
-  color: var(--lf-primary);
-  background: none;
+
+  
+  
 }
 
 .table-container {
@@ -265,10 +262,10 @@ const updateCell = (rowIndex: number, header: string, value: string) => {
   padding: var(--spacing-4);
 }
 
-[data-theme="dark"] .plugin__input {
+/* [data-theme="dark"] .plugin__input {
   border-color: var(--db-tertiary);
   color: var(--df-primary);
-}
+} */
 
 [data-theme="dark"] .table-container {
   border-color: var(--db-tertiary);
